@@ -1,0 +1,70 @@
+<!-- Si ingresas ! y tabuleas se genera automáticamente todo lo básico -->
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TaskMaster - Simple Todo List</title>
+</head>
+<body>
+    <div class="app-container">
+        <header class="app-header">
+            <h1 class="app-title">TaskManager</h1>
+            <p class="app-subtitle">Organiza tu día, logra tus objetivos</p>
+        </header>  
+
+        <main class="main-card">
+            <section class="task-form-container">
+                <!-- Aquí irá el formulario de tareas -->
+                <!-- Los formularios tienen que tener ID obligatoriamente -->
+                <form id="task-form">
+
+                </form>
+            </section>
+
+            <section class="tasks-container">
+                <div class="section-header">
+                    <h2 class="section-title">Mis Tareas</h2>
+                    <nav>
+                        <button id="filter-all" class="filter-btn">Todas</button>
+                        <button id="filter-active" class="filter-btn">Activas</button>
+                        <button id="filter-completed" class="filter-btn">Completadas</button>
+                    </nav>
+                </div>
+
+                <ul id="task-list">
+                    <!-- Las tareas se añadirán aquí -->
+                </ul>
+
+                <div class="tasks-summary">
+                    <p><span id="items-left">0</span> items left</p>
+                    <button id="clear-completed-btn">Clear Completed</button>
+                </div>
+            </section>
+        </main>
+
+        <footer class="app-footer">
+            <p>Creado con HTML, CSS y JavaScript</p>
+        </footer>
+    </div>
+
+    <h1>To-Do List</h1>
+    <input type="text" id="taskInput" placeholder="Enter a new task">
+    <button onclick="addTask()">Add Task</button>
+    <ul id="taskList"></ul>
+
+    <script>
+        function addTask() {
+            const taskInput = document.getElementById('taskInput');
+            const taskText = taskInput.value.trim();
+            if (taskText !== '') {
+                const taskList = document.getElementById('taskList');
+                const listItem = document.createElement('li');
+                listItem.textContent = taskText;
+                taskList.appendChild(listItem);
+                taskInput.value = '';
+            }
+        }
+    </script>
+</body>
+</html>
