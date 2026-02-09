@@ -25,6 +25,33 @@
                 <!-- Aquí irá el formulario de tareas -->
                 <!-- Los formularios tienen que tener ID obligatoriamente -->
                 <form id="task-form">
+                    <!-- Create a form group with label and text input for task description -->
+                    <div class="form-group">
+                        <label for="task-input">Descripción de la tarea:</label>
+                        <input type="text" id="task-input" name="task-input" placeholder="¿Qué necesitas realizar?" required minlength="3">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="task-priority">Prioridad:</label>
+                        <select id="task-priority" name="task-priority">
+                            <option value="low">Baja</option>
+                            <option value="medium" selected>Media</option>
+                            <option value="high">Alta</option>
+                        </select>
+                    </div>
+
+                    <!-- Create a form group with label and date input for task due date -->
+                    <div class="form-group">
+                        <label for="task-due-date">Fecha de vencimiento:</label>
+                        <input type="date" id="task-date" name="task-date" required min="2026-01-01">
+                    </div>
+
+                    <!-- Create an error display area for form validation messages -->
+                    <div id="form-error" class="error" role="alert" aria-live="assertive" style="color: red;"></div>
+
+                    <div class="form-actions">
+                        <button type="submit" id="add-task-btn">Agregar Tarea</button>
+                    </div>
                 </form>
             </section>
 
@@ -77,23 +104,7 @@
         </footer>
     </div>
 
-    <h1>To-Do List</h1>
-    <input type="text" id="taskInput" placeholder="Enter a new task">
-    <button onclick="addTask()">Add Task</button>
-    <ul id="taskList"></ul>
-
-    <script>
-        function addTask() {
-            const taskInput = document.getElementById('taskInput');
-            const taskText = taskInput.value.trim();
-            if (taskText !== '') {
-                const taskList = document.getElementById('taskList');
-                const listItem = document.createElement('li');
-                listItem.textContent = taskText;
-                taskList.appendChild(listItem);
-                taskInput.value = '';
-            }
-        }
-    </script>
+    <!-- script siempre va al final, justo antes de body -->
+    <script src="app.js"></script>
 </body>
 </html>
