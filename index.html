@@ -1,50 +1,79 @@
 <!-- Si ingresas ! y tabuleas se genera automáticamente todo lo básico -->
 <!DOCTYPE html>
-<html lang="es">
+<!-- El role document indica que el contenido debe ser tratado como un documento, mejorando la accesibilidad para lectores de pantalla -->
+<html lang="es" role="document">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>TaskMaster - Simple Todo List</title>
 </head>
 <body>
-    <div class="app-container">
-        <header class="app-header">
-            <h1 class="app-title">TaskManager</h1>
+    <!-- El role application indica que se trata de una aplicación interactiva -->
+    <div class="app-container"  role="application" aria-label="TaskMaster Todo List App">
+        <!-- El role banner indica que el heaeder contiene información como título, logo y navegación primaria -->
+        <!-- El arial-labelledby permite especificar un elemento labeled por otro elemento de la página, crea relaciones entre el contenido y su etiqueta -->
+        <header class="app-header" role="banner" aria-labelledby="app-title">
+            <h1 id="app-title" class="app-title">TaskManager</h1>
             <p class="app-subtitle">Organiza tu día, logra tus objetivos</p>
-        </header>  
+        </header>
 
-        <main class="main-card">
-            <section class="task-form-container">
+        <!-- El role main indica que es el elemento principal de la aplicación -->
+        <main class="main-card" role="main" aria-label="Interfaz de gestión de tareas">
+            <!-- El role form indica que es un formulario -->
+            <section class="task-form-container" role="form" aria-labelledby="form-heading">
+                <h2 id="form-heading" class="form-title">Agregar Nueva Tarea</h2>
                 <!-- Aquí irá el formulario de tareas -->
                 <!-- Los formularios tienen que tener ID obligatoriamente -->
                 <form id="task-form">
-
                 </form>
             </section>
 
-            <section class="tasks-container">
+            <!-- El role region indica que es una región de contenido importante -->
+            <article class="tasks-container" role="region" aria-label="Tareas">
                 <div class="section-header">
-                    <h2 class="section-title">Mis Tareas</h2>
-                    <nav>
-                        <button id="filter-all" class="filter-btn">Todas</button>
-                        <button id="filter-active" class="filter-btn">Activas</button>
-                        <button id="filter-completed" class="filter-btn">Completadas</button>
+                    <h2 id="tasks-heading" class="section-title">Mis Tareas</h2>
+                    <!-- El role navigation indica que el nav contiene navegación -->
+                    <nav role="navigation" aria-label="Opciones de filtros de tareas">
+                        <!-- El role tablist indica un listado de pestañas -->
+                        <div role="tablist" aria-label="Filtros de tareas">
+                            <!-- El role tab indica que el elemento es una pestaña que permite cambiar entre diferentes vistas o contenido, mejorando accesibilidad -->
+                            <!-- aria-controls indica que elemento va a ser afectado -->
+                            <button id="filter-all" class="filter-btn" 
+                                aria-label="Botón todas las tareas" role="tab" aria-controls="task-list"
+                                aria-selected="true">Todas</button>
+                            <button id="filter-active" class="filter-btn" 
+                                aria-label="Botón tareas activas" role="tab" aria-controls="task-list"
+                                aria-selected="false">Activas</button>
+                            <button id="filter-completed" class="filter-btn" 
+                                aria-label="Botón tareas completadas" role="tab" aria-controls="task-list"
+                                aria-selected="false">Completadas</button>
+                        </div>
                     </nav>
                 </div>
 
-                <ul id="task-list">
+                <!-- El role tabpanel indica que es el panel/contenedor de contenido controlado por una pestaña, muestra el contenido cuando su tab asociada está activa -->
+                <!-- aria-live: Define cómo anuncian los lectores de pantalla cambios dinámicos en este elemento
+                    - off: No anuncia cambios (valor por defecto)
+                    - polite: Anuncia cambios después de que el usuario termine de interactuar, sin interrumpir
+                    - assertive: Anuncia cambios inmediatamente, interrumpiendo si es necesario para alertas críticas
+                    En este caso usamos "polite" porque es una lista de tareas que se actualiza frecuentemente -->
+                <ul id="task-list" role="tabpanel" aria-labelledby="filter-all" aria-live="polite">
                     <!-- Las tareas se añadirán aquí -->
                 </ul>
 
-                <div class="tasks-summary">
-                    <p><span id="items-left">0</span> items left</p>
+                <div class="tasks-summary" role="region" aria-label="Resumen de tareas">
+                    <!-- El role status indica que el span contiene información de estado del documento -->
+                    <p><span id="items-left" role="status" aria-live="polite">0</span> items left</p>
                     <button id="clear-completed-btn">Clear Completed</button>
                 </div>
-            </section>
+            </article>
         </main>
 
-        <footer class="app-footer">
-            <p>Creado con HTML, CSS y JavaScript</p>
+        <!-- El role contentinfo indica que el div contiene información de contenido del documento -->                
+        <footer class="app-footer" role="contentinfo">
+            <!-- &copy; se usa para genera la © -->
+            <p>&copy; Creado con HTML, CSS y JavaScript</p>
+            <p>Desarrollado por <strong>Leonardo Rosales</strong></p>
         </footer>
     </div>
 
