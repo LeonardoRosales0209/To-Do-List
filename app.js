@@ -62,6 +62,68 @@ function createTaskObject(description, priority, date){
 }
 
 /*
+ * Renderiza un único elemento de tarea
+ * @param {Object} taskData
+ * @returns {HTMLElement} - Tarea creada
+*/
+function renderTaskElement(taskData){
+    var li = document.createElement('li');
+    li.className = 'task-item';
+    // TODO: Add the priority class to the list item
+    // Example: task-item-high, task-item-medium, or task-item-low
+    // Hint: use classList.add('task-item-' + taskData.priority)
+    li.classList.add('task-item-' + taskData.priority);
+    // TODO: Create and add the checkbox
+    // It should be an input element with:
+    // - type: 'checkbox'
+    // - className: 'task-checkbox'
+    var cb = document.createElement('input');
+    cb.type = 'checkbox';
+    cb.className = 'task-checkbox';
+    li.appendChild(cb);    
+    // TODO: Create and add the content container
+    // It should be a div with className 'task-content'
+    // Inside it should have:
+    // - A paragraph with className 'task-text' and textContent from taskData.description
+    // - A small element with className 'task-details' with priority and date information
+    var content = document.createElement('div');
+    content.className = 'task-content';
+    var p = document.createElement('p');
+    p.className = 'task-text';
+    p.textContent = taskData.description;
+    var small = document.createElement('small');
+    small.className = 'task-details';
+    small.textContent = `Priority: ${taskData.priority}, Date: ${taskData.dueDate}`;
+    content.appendChild(p);
+    content.appendChild(small);
+    li.appendChild(content);
+    // For now, we'll just add a placeholder for the delete button
+    // We'll implement its functionality in a future lab
+    var deleteBtn = document.createElement('button');
+    deleteBtn.className = 'delete-btn';
+    deleteBtn.textContent = 'Delete';
+    li.appendChild(deleteBtn);
+    return li; 
+}
+
+/*
+ * Renderiza todas las tareas en el DOM
+*/
+function renderTasks(){
+    // Limpia la lista de tareas antes de renderizar
+    taskList.innerHTML = '';    
+    // TODO: Loop through the tasks array
+    // For each task, call renderTaskElement and append the result to taskList
+    // Hint: Use a for loop or forEach to iterate through the tasks array
+    tasks.forEach(function(task) {
+        var taskElement = renderTaskElement(task);
+        taskList.appendChild(taskElement);
+    });
+    // Update task count
+    updateTaskCount();
+}
+
+/*
  * Función para manejar el envío del formulario de tareas
  * Crea una nueva tarea y la agrega a la lista de tareas
  */
@@ -84,14 +146,41 @@ function handleFormSubmit(e){
     var newTask = createTaskObject(description, priority, dueDate);
     // Agregar la nueva tarea a la lista de tareas
     tasks.push(newTask);
-  
-    // Actualiza el contador de tareas restantes
-    updateTaskCount();
+
+    // Renderizar todas las tareas para mostrar la nueva tarea en el DOM
+    renderTasks();
+
     console.log('Nueva tarea creada:', newTask);
     console.log('Total de tareas:', tasks.length);
 
     // Resetea el formulario
     taskForm.reset();
+}
+
+/*
+ * Manejar filtros al hacer click en los botones de filtro
+ * @param {Event} e - The click event
+*/
+function handleFilterClick(e){
+    // Revisa si un boton de filtro fue clickeado
+    if(e.target.classList.contains('filter-btn')){
+        // Obten el tipo de filtro del atributo data-filter del botón clickeado
+        var filter = e.target.getAttribute('data-filter');
+
+        // Actualiza la variable global currentFilter con el nuevo filtro
+        currentFilter = filter;
+
+        // TODO: Update the active class on filter buttons
+        // Remove 'active' class from all buttons
+        // Add 'active' class to the clicked button
+        // Hint: Use a loop with classList.remove() and classList.add()
+        filterButtons.forEach(function(button){
+            button.classList.remove('active');
+        });
+        e.target.classList.add('active');
+        
+        console.log('Filter changed to:', filter);
+    }
 }
 
 /*
@@ -116,6 +205,12 @@ function initApp(){
 
     // Añademos eventos listener
     taskForm.addEventListener('submit', handleFormSubmit);
+
+    // Se añade al nav la escucha de clicks para manejar los filtros porque los botones de filtro están dentro del nav
+    document.querySelector('nav').addEventListener('click', handleFilterClick);
+
+    // Renderiza las tareas iniciales (si hay alguna)
+    renderTasks();
   
     // Actualiza el título del documento con el número de tareas
     updateDocumentTitle();

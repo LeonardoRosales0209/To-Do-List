@@ -69,13 +69,13 @@
                             <!-- aria-controls indica que elemento va a ser afectado -->
                             <button id="filter-all" class="filter-btn" 
                                 aria-label="Botón todas las tareas" role="tab" aria-controls="task-list"
-                                aria-selected="true">Todas</button>
+                                aria-selected="true"  data-filter="all">Todas</button>
                             <button id="filter-active" class="filter-btn" 
                                 aria-label="Botón tareas activas" role="tab" aria-controls="task-list"
-                                aria-selected="false">Activas</button>
+                                aria-selected="false"  data-filter="active">Activas</button>
                             <button id="filter-completed" class="filter-btn" 
                                 aria-label="Botón tareas completadas" role="tab" aria-controls="task-list"
-                                aria-selected="false">Completadas</button>
+                                aria-selected="false" data-filter="completed">Completadas</button>
                         </div>
                     </nav>
                 </div>
@@ -88,32 +88,6 @@
                     En este caso usamos "polite" porque es una lista de tareas que se actualiza frecuentemente -->
                 <ul id="task-list" role="tabpanel" aria-labelledby="filter-all" aria-live="polite">
                     <!-- Las tareas se añadirán aquí -->
-                     <li class="task-item task-item-high">
-                        <input type="checkbox" class="task-checkbox">
-                        <div class="task-content">
-                            <p class="task-text">Complete the responsive design lab</p>
-                            <small class="task-details">Priority: High | Due: Tomorrow</small>
-                        </div>
-                        <button class="delete-btn">Delete</button>
-                    </li>
-
-                    <li class="task-item task-item-medium">
-                        <input type="checkbox" class="task-checkbox">
-                        <div class="task-content">
-                            <p class="task-text">Review JavaScript course materials</p>
-                            <small class="task-details">Priority: Medium | Due: Thursday</small>
-                        </div>
-                        <button class="delete-btn">Delete</button>
-                    </li>
-
-                    <li class="task-item task-item-low task-completed">
-                        <input type="checkbox" class="task-checkbox" checked>
-                        <div class="task-content">
-                            <p class="task-text">Set up development environment</p>
-                            <small class="task-details">Priority: Low | Due: Yesterday</small>
-                        </div>
-                        <button class="delete-btn">Delete</button>
-                    </li>
                 </ul>
 
                 <div class="tasks-summary" role="region" aria-label="Resumen de tareas">
