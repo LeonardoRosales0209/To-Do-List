@@ -22,14 +22,16 @@ var filterButtons;
     * Función para actualizar el título del documento con el número de tareas
 */
 function updateDocumentTitle(){
-    document.title = `TaskMaster - ${tasks.length} ${tasks.length === 1 ? 'tarea' : 'tareas'}`;
+    const incompleted = tasks.filter(i => !i.completed);
+    document.title = `TaskMaster - ${incompleted.length} ${incompleted.length === 1 ? 'tarea' : 'tareas'}`;
 }
 
 /*
  * Función para actualizar el contador de tareas restantes
 */
 function updateTaskCount(){
-    itemsLeft.textContent = tasks.length;
+    const incompleted = tasks.filter(i => !i.completed);
+    itemsLeft.textContent = incompleted.length;
     updateDocumentTitle();
 }
 
@@ -69,10 +71,20 @@ function createTaskObject(description, priority, date){
 function renderTaskElement(taskData){
     var li = document.createElement('li');
     li.className = 'task-item';
+
+    // Add data-id attribute to connect element with task data
+    // Your code here
+    li.setAttribute('data-id', taskData.id);
+
     // TODO: Add the priority class to the list item
     // Example: task-item-high, task-item-medium, or task-item-low
     // Hint: use classList.add('task-item-' + taskData.priority)
     li.classList.add('task-item-' + taskData.priority);
+
+    if(taskData.completed){
+        li.classList.add('task-completed');
+    }
+
     // TODO: Create and add the checkbox
     // It should be an input element with:
     // - type: 'checkbox'
@@ -80,7 +92,8 @@ function renderTaskElement(taskData){
     var cb = document.createElement('input');
     cb.type = 'checkbox';
     cb.className = 'task-checkbox';
-    li.appendChild(cb);    
+    cb.checked = taskData.completed;
+    li.appendChild(cb);
     // TODO: Create and add the content container
     // It should be a div with className 'task-content'
     // Inside it should have:
@@ -184,6 +197,105 @@ function handleFilterClick(e){
 }
 
 /*
+ * Encuentra la tarea por ID
+ * @param {number} taskId - ID a buscar
+ * @returns {Object|null} - Tarea encontrada o nulo
+*/
+function findTaskById(taskId){
+    for(var i=0; i<tasks.length; i++){
+        if(tasks[i].id === taskId){
+            return tasks[i];
+        }
+    }
+
+    return null;
+}
+
+/*
+ * Alterna el estado de la tarea
+ * @param {number} taskId - Id de la tarea
+*/ 
+function toggleTaskComplete(taskId){
+    var task = findTaskById(taskId);
+
+    if(task){
+        //Alterna el estado
+        task.completed = !task.completed;
+
+        console.log(task.completed ? 'Tarea completada':'Tarea incompleta');
+
+        renderTasks();
+    }
+}
+
+/*
+ * Quita una tarea
+ * @param {number} taskId - Remover el ID de la tarea
+*/
+function removeTask(taskId){
+    var newTasks = [];
+    for(var i=0; i<tasks.length; i++){
+        if(tasks[i].id !== taskId){
+            newTasks.push(tasks[i]);
+        }
+    }
+
+    tasks = newTasks;
+
+    // Log the change
+    console.log('Task removed!');
+
+    renderTasks();
+}
+
+
+/*
+ * Maneja interacción con la lista de las tareas
+ * @param {Event} e - Evento de click
+*/
+function handleTaskListClick(e){
+    console.log('Click a task list:', e.target);
+
+    //Encuentra tarea más cercana
+    var taskItem = e.target;
+    while(taskItem && !taskItem.classList.contains('task-item')){
+        taskItem = taskItem.parentElement;
+    }
+
+    // Si no hay item returna
+    if(!taskItem) return;
+
+    // Obten ID de la tarea
+    var taskId = parseInt(taskItem.getAttribute('data-id'));
+    console.log('ID clickeado: ', taskId);
+
+    // TODO: Implement element type detection
+    // 1. Add code to detect what type of element was clicked
+    // 2. Display a message in the console indicating whether the user clicked:
+    //    - A checkbox
+    //    - A delete button
+    //    - The task content area
+    // Hint: Use e.target and check its className or other properties
+ 
+    // Your element detection code here:
+    if(e.target.classList.contains('task-checkbox')){
+        console.log('Es un checkbox');
+        //Checkeado
+        toggleTaskComplete(taskId);
+    }
+    else if(e.target.classList.contains('delete-btn')){
+        console.log('Es un delete');
+        // Lanza un mensaje de confirmación
+        if(confirm('¿Estás seguro que quieres eliminar la tarea?')){
+            removeTask(taskId);
+        }
+    }
+    else if(e.target.classList.contains('task-content')){
+        console.log('Es un task content');
+    }
+}
+
+/*
     * Función para inicializar la aplicación
     * Configura los elementos del DOM y los eventos necesarios
 */
@@ -208,6 +320,8 @@ function initApp(){
 
     // Se añade al nav la escucha de clicks para manejar los filtros porque los botones de filtro están dentro del nav
     document.querySelector('nav').addEventListener('click', handleFilterClick);
+
+    taskList.addEventListener('click', handleTaskListClick);
 
     // Renderiza las tareas iniciales (si hay alguna)
     renderTasks();
