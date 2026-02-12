@@ -17,6 +17,7 @@ var taskDate;
 var taskList;
 var itemsLeft;
 var filterButtons;
+var formError;
 
 /*
     * Función para actualizar el título del documento con el número de tareas
@@ -137,6 +138,41 @@ function renderTasks(){
 }
 
 /*
+ * Validación de la tarea para asegurar que cumple con los requerimientos
+ * @param {string} description
+ * @param {string} date
+ * @returns {Array}
+*/
+function validateTask(description, date){
+    var errors = [];
+
+    if(!description){
+        errors.push('Se requiere una descripción de la tarea');
+    } else if(description.length < 3){
+        errors.push('La descripción debe tener al menos 3 caracteres.');
+    }
+
+    if(!date){
+        errors.push('Fecha de vencimiento es requerida');
+    }
+
+    return errors;
+}
+
+/*
+ * Reseteamos limpiando todo
+*/
+function resetFormWithCleanup(){
+    taskForm.reset();
+
+    // Limpiamos los errores
+    formError.textContent = '';
+    formError.style.display = 'none';
+
+    taskInput.focus();
+}
+
+/*
  * Función para manejar el envío del formulario de tareas
  * Crea una nueva tarea y la agrega a la lista de tareas
  */
@@ -147,6 +183,13 @@ function handleFormSubmit(e){
     var description = taskInput.value.trim();
     var priority = taskPriority.value;
     var dueDate = taskDate.value;
+
+    var errors = validateTask(description, dueDate);
+    if(errors.length > 0){
+        formError.textContent = errors.join('. ');
+        formError.style.display = 'block';
+        return;
+    } 
 
     // Validar la descripción de la tarea
     if(!isValidTaskDescription(description)){
@@ -167,7 +210,7 @@ function handleFormSubmit(e){
     console.log('Total de tareas:', tasks.length);
 
     // Resetea el formulario
-    taskForm.reset();
+    resetFormWithCleanup()
 }
 
 /*
@@ -310,6 +353,8 @@ function initApp(){
     taskDate = document.getElementById('task-date');
     taskList = document.getElementById('task-list');
     itemsLeft = document.getElementById('items-left');
+
+    formError = document.getElementById('form-error');
 
     // querySelectorAll es más flexible porque permite seleccionar elementos usando cualquier selector CSS, pero puede ser más lento que getElementById, especialmente si el selector es complejo o si hay muchos elementos que coinciden con el selector.    
     // La diferencia entre querySelectorAll y querySelector es que querySelectorAll devuelve una NodeList de todos los elementos que coinciden con el selector, mientras que querySelector devuelve solo el primer elemento que coincide. En este caso, como queremos seleccionar todos los botones de filtro, usamos querySelectorAll.
