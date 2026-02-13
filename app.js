@@ -37,17 +37,6 @@ function updateTaskCount(){
 }
 
 /*
- * Validación de la descrición del formulario
- * @param {string} description - The task description to validate
- * @returns {boolean} - Whether the description is valid
-*/
-function isValidTaskDescription(description){
-    // TODO: Return true if description is not empty and has at least 3 characters
-    // Return false otherwise
-    return description.trim().length >= 3;
-}
-
-/*
   * Creates a new task object
   * @param {string} description - The task description
   * @param {string} priority - The task priority
@@ -62,6 +51,35 @@ function createTaskObject(description, priority, date){
         dueDate: date,
         completed: false
     }
+}
+
+/*
+ * Agrega una tarea
+ * @param {string} description
+ * @param {string} priority
+ * @param {string} date
+*/
+function addTask(description, priority, date){
+    // Validamos
+    var errors = validateTask(description, date);
+    if(errors.length > 0){
+        formError.textContent = errors.join('. ');
+        formError.style.display = 'block';
+        return false;
+    }
+
+    resetFormWithCleanup();
+
+    var newTask = createTaskObject(description, priority, date);
+
+    tasks.push(newTask);
+    
+    renderTasks();
+
+    // Show confirmation
+    console.log('Tarea añadida con éxito!');
+
+    return true;
 }
 
 /*
@@ -138,6 +156,27 @@ function renderTasks(){
 }
 
 /*
+ * Formatea la fecha
+*/
+function getFormattedToday(){
+    var today = new Date();
+
+    // Obten el anho, mes y dia
+    var year = today.getFullYear();
+    var month = today.getMonth();
+    var day = today.getDate();
+
+    if(month<10){
+        month = '0' + month;
+    }
+    if(day<10){
+        day = '0' + day;
+    }
+
+    return year + '-' + month + '-' + day;
+}
+
+/*
  * Validación de la tarea para asegurar que cumple con los requerimientos
  * @param {string} description
  * @param {string} date
@@ -154,6 +193,11 @@ function validateTask(description, date){
 
     if(!date){
         errors.push('Fecha de vencimiento es requerida');
+    } else{
+        var today = getFormattedToday();
+        if(date < today){
+            errors.push('La fecha de vencimiento no puede ser anterior a hoy');
+        }
     }
 
     return errors;
@@ -184,33 +228,8 @@ function handleFormSubmit(e){
     var priority = taskPriority.value;
     var dueDate = taskDate.value;
 
-    var errors = validateTask(description, dueDate);
-    if(errors.length > 0){
-        formError.textContent = errors.join('. ');
-        formError.style.display = 'block';
-        return;
-    } 
-
-    // Validar la descripción de la tarea
-    if(!isValidTaskDescription(description)){
-        alert('La descripción de la tarea debe tener al menos 3 caracteres.');
-        taskInput.focus(); // Enfoca el campo de entrada para que el usuario pueda corregirlo fácilmente
-        return;
-    }
-
-    // Crear un nuevo objeto de tarea
-    var newTask = createTaskObject(description, priority, dueDate);
-    // Agregar la nueva tarea a la lista de tareas
-    tasks.push(newTask);
-
-    // Renderizar todas las tareas para mostrar la nueva tarea en el DOM
-    renderTasks();
-
-    console.log('Nueva tarea creada:', newTask);
-    console.log('Total de tareas:', tasks.length);
-
-    // Resetea el formulario
-    resetFormWithCleanup()
+    // Agregamos la tarea
+    var success = addTask(description, priority, dueDate);
 }
 
 /*
@@ -359,6 +378,8 @@ function initApp(){
     // querySelectorAll es más flexible porque permite seleccionar elementos usando cualquier selector CSS, pero puede ser más lento que getElementById, especialmente si el selector es complejo o si hay muchos elementos que coinciden con el selector.    
     // La diferencia entre querySelectorAll y querySelector es que querySelectorAll devuelve una NodeList de todos los elementos que coinciden con el selector, mientras que querySelector devuelve solo el primer elemento que coincide. En este caso, como queremos seleccionar todos los botones de filtro, usamos querySelectorAll.
     filterButtons = document.querySelectorAll('.filter-btn');
+
+    taskDate.value = getFormattedToday();
 
     // Añademos eventos listener
     taskForm.addEventListener('submit', handleFormSubmit);
