@@ -18,6 +18,7 @@ var taskList;
 var itemsLeft;
 var filterButtons;
 var formError;
+var clearButton;
 
 /*
     * Función para actualizar el título del documento con el número de tareas
@@ -82,6 +83,34 @@ function addTask(description, priority, date){
     return true;
 }
 
+/**
+ * Filter tasks based on current filter
+ * @returns {Array} - The filtered tasks
+ */
+function getFilteredTasks() {
+    // Your code here: Return different arrays based on the currentFilter value
+    // - If currentFilter is 'active', return only incomplete tasks
+    // - If currentFilter is 'completed', return only completed tasks
+    // - Otherwise, return all tasks
+
+    // Hints:
+    // - Use a conditional (if/else) to check the value of currentFilter
+    // - Create a new array to hold the filtered tasks
+    // - Loop through all tasks and add the matching ones to your array
+    var filteredTasks = [];
+    if(currentFilter === 'all'){
+        filteredTasks = tasks;
+    }
+    else if(currentFilter === 'active'){
+        filteredTasks = tasks.filter(t => !t.completed);
+    }
+    else if(currentFilter === 'completed'){
+        filteredTasks = tasks.filter(t => t.completed);
+    }
+
+    return filteredTasks;
+}
+
 /*
  * Renderiza un único elemento de tarea
  * @param {Object} taskData
@@ -144,13 +173,17 @@ function renderTaskElement(taskData){
 function renderTasks(){
     // Limpia la lista de tareas antes de renderizar
     taskList.innerHTML = '';    
-    // TODO: Loop through the tasks array
-    // For each task, call renderTaskElement and append the result to taskList
-    // Hint: Use a for loop or forEach to iterate through the tasks array
-    tasks.forEach(function(task) {
-        var taskElement = renderTaskElement(task);
+
+    // Your code here: Get filtered tasks using your new function
+    var filteredTask = getFilteredTasks();
+    // Your code here: Check if we have tasks to display
+    // If no tasks match the filter, show an appropriate message
+    // Otherwise, render each filtered task
+    filteredTask.forEach(function(t) {
+        var taskElement = renderTaskElement(t);
         taskList.appendChild(taskElement);
     });
+
     // Update task count
     updateTaskCount();
 }
@@ -163,7 +196,7 @@ function getFormattedToday(){
 
     // Obten el anho, mes y dia
     var year = today.getFullYear();
-    var month = today.getMonth();
+    var month = today.getMonth() + 1;
     var day = today.getDate();
 
     if(month<10){
@@ -172,6 +205,8 @@ function getFormattedToday(){
     if(day<10){
         day = '0' + day;
     }
+
+    console.log(month);
 
     return year + '-' + month + '-' + day;
 }
@@ -208,6 +243,7 @@ function validateTask(description, date){
 */
 function resetFormWithCleanup(){
     taskForm.reset();
+    taskDate.value = getFormattedToday();
 
     // Limpiamos los errores
     formError.textContent = '';
@@ -254,6 +290,7 @@ function handleFilterClick(e){
         });
         e.target.classList.add('active');
         
+        renderTasks();
         console.log('Filter changed to:', filter);
     }
 }
@@ -356,6 +393,58 @@ function handleTaskListClick(e){
         console.log('Es un task content');
     }
 }
+/**
+ * Clear all completed tasks
+ */
+function handleClearCompleted() {
+    // Your code here: Implement the logic to remove all completed tasks
+
+    // Steps to implement:
+    // 1. Check if there are any completed tasks - if not, alert the user and exit
+    var completedTasks = tasks.filter(t => t.completed);
+    if(completedTasks.length == 0){
+        alert('No hay tareas completadas.');
+    }
+    // 2. Ask for confirmation before removing tasks
+    // 3. If confirmed, filter out the completed tasks
+    else{
+        if(confirm('¿Estás seguro de limpiar las tareas completadas?')){
+            completedTasks.forEach(t => removeTask(t.id));
+            renderTasks();
+        }
+    }
+    // 4. Update the tasks array and re-render
+
+    // Hints:
+    // - Use a loop to check for completed tasks
+    // - Use the confirm() function to ask for user confirmation
+    // - Create a new array with only incomplete tasks
+    // - Remember to re-render the tasks after updating the array
+}
+
+/**
+ * Setup all event listeners for the application
+ */
+function setupEventListeners() {
+    // Your code here: Add event listeners for each interactive element
+    // Remember to include:
+    // - Form submission
+    // - Task list clicks
+    // - Filter button clicks
+    // - Clear completed button click
+
+    // Añademos eventos listener
+    taskForm.addEventListener('submit', handleFormSubmit);
+
+    // Se añade al nav la escucha de clicks para manejar los filtros porque los botones de filtro están dentro del nav
+    document.querySelector('nav').addEventListener('click', handleFilterClick);
+
+    taskList.addEventListener('click', handleTaskListClick);
+
+    clearButton.addEventListener('click', handleClearCompleted);
+
+    console.log('All event listeners initialized');
+}
 
 /*
     * Función para inicializar la aplicación
@@ -375,19 +464,15 @@ function initApp(){
 
     formError = document.getElementById('form-error');
 
+    clearButton = document.getElementById('clear-completed-btn');
+
     // querySelectorAll es más flexible porque permite seleccionar elementos usando cualquier selector CSS, pero puede ser más lento que getElementById, especialmente si el selector es complejo o si hay muchos elementos que coinciden con el selector.    
     // La diferencia entre querySelectorAll y querySelector es que querySelectorAll devuelve una NodeList de todos los elementos que coinciden con el selector, mientras que querySelector devuelve solo el primer elemento que coincide. En este caso, como queremos seleccionar todos los botones de filtro, usamos querySelectorAll.
     filterButtons = document.querySelectorAll('.filter-btn');
 
     taskDate.value = getFormattedToday();
 
-    // Añademos eventos listener
-    taskForm.addEventListener('submit', handleFormSubmit);
-
-    // Se añade al nav la escucha de clicks para manejar los filtros porque los botones de filtro están dentro del nav
-    document.querySelector('nav').addEventListener('click', handleFilterClick);
-
-    taskList.addEventListener('click', handleTaskListClick);
+    setupEventListeners();
 
     // Renderiza las tareas iniciales (si hay alguna)
     renderTasks();
