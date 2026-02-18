@@ -61,14 +61,6 @@ function createTaskObject(description, priority, date){
  * @param {string} date
 */
 function addTask(description, priority, date){
-    // Validamos
-    var errors = validateTask(description, date);
-    if(errors.length > 0){
-        formError.textContent = errors.join('. ');
-        formError.style.display = 'block';
-        return false;
-    }
-
     resetFormWithCleanup();
 
     var newTask = createTaskObject(description, priority, date);
@@ -151,10 +143,22 @@ function renderTaskElement(taskData){
     content.className = 'task-content';
     var p = document.createElement('p');
     p.className = 'task-text';
-    p.textContent = taskData.description;
+    // p.textContent = taskData.description;
+    p.innerHTML = sanitizeHtml(taskData.description);
     var small = document.createElement('small');
     small.className = 'task-details';
     small.textContent = `Priority: ${taskData.priority}, Date: ${taskData.dueDate}`;
+
+    // Check if the content was potentially risky (contains < or >)
+    if (taskData.description.includes('<') || taskData.description.includes('>')) {
+        // Add a warning icon
+        var warningIcon = document.createElement('span');
+        warningIcon.className = 'security-notice';
+        warningIcon.title = 'This content contained special characters that were sanitized for security';
+        warningIcon.textContent = ' ⚠️ ';
+        p.appendChild(warningIcon);
+    }
+
     content.appendChild(p);
     content.appendChild(small);
     li.appendChild(content);
@@ -211,31 +215,103 @@ function getFormattedToday(){
     return year + '-' + month + '-' + day;
 }
 
-/*
- * Validación de la tarea para asegurar que cumple con los requerimientos
- * @param {string} description
- * @param {string} date
- * @returns {Array}
-*/
-function validateTask(description, date){
-    var errors = [];
+/**
+ * Validates and sanitizes a task description
+ * @param {string} description - The task description to validate
+ * @returns {Object} - Validation result with isValid flag and sanitized value
+ */
+function validateAndSanitizeDescription(description) {
+    var result = {
+        isValid: false,
+        value: '',
+        error: ''
+    };
 
-    if(!description){
-        errors.push('Se requiere una descripción de la tarea');
-    } else if(description.length < 3){
-        errors.push('La descripción debe tener al menos 3 caracteres.');
+    // Trim the input
+    var trimmed = description.trim();
+
+    // Check for empty input
+    if (!trimmed) {
+        result.error = 'Se requiere una descripción de la tarea';
+        return result;
     }
 
-    if(!date){
-        errors.push('Fecha de vencimiento es requerida');
-    } else{
-        var today = getFormattedToday();
-        if(date < today){
-            errors.push('La fecha de vencimiento no puede ser anterior a hoy');
+    // Check minimum length
+    if (trimmed.length < 3) {
+        result.error = 'Debe tener por lo menos 3 caracteres';
+        return result;
+    }
+
+    // Check maximum length (prevent excessive data)
+    if (trimmed.length > 100) {
+        result.error = 'Debe tener como máximo 100 caracteres';
+        return result;
+    }
+
+    // Check for potentially dangerous patterns
+    var scriptPattern = /<script|javascript:|onerror=|onclick=|onload=/i;
+    if (scriptPattern.test(trimmed)) {
+        result.error = 'La descripción tiene contenido no permitido';
+        return result;
+    }
+
+    // Validation passed
+    result.isValid = true;
+    result.value = trimmed;
+    return result;
+}
+
+/**
+ * Sanitizes a string for safe HTML display
+ * @param {string} content - The content to sanitize
+ * @returns {string} - The sanitized content
+ */
+function sanitizeHtml(content) {
+    // Create a temporary element
+    var temp = document.createElement('div');
+
+    // Set its textContent (which automatically escapes HTML)
+    temp.textContent = content;
+
+    // Return the escaped content
+    return temp.innerHTML;
+}
+
+/**
+ * Validates if a string is a safe URL
+ * @param {string} url - The URL to validate
+ * @returns {Object} - Validation result with isValid flag
+ */
+function validateUrl(url) {
+    var result = {
+        isValid: false,
+        error: ''
+    };
+
+    // Check if the URL is empty (which might be fine)
+    if (!url || url.trim() === '') {
+        result.isValid = true;
+        return result;
+    }
+
+    try {
+        // Create URL object to check validity
+        var urlObj = new URL(url);
+
+        // Restrict to http or https protocols only
+        if (urlObj.protocol !== 'http:' && urlObj.protocol !== 'https:') {
+            result.error = 'URLs must use http or https protocols only';
+            return result;
         }
-    }
 
-    return errors;
+        // URL is valid and safe
+        result.isValid = true;
+        return result;
+    } catch (e) {
+        // Invalid URL format
+        result.error = 'Please enter a valid URL';
+        return result;
+    }
 }
 
 /*
@@ -260,12 +336,21 @@ function handleFormSubmit(e){
     e.preventDefault(); // Evita que el formulario se envíe y recargue la página
 
     //Obtener data
-    var description = taskInput.value.trim();
+    var description = taskInput.value;
     var priority = taskPriority.value;
     var dueDate = taskDate.value;
 
+    var validationResult = validateAndSanitizeDescription(description);
+    if(!validationResult.isValid){
+        alert(validationResult.error);
+        taskInput.focus();
+        return;
+    }
+    //Usamos el valor "sanitized"
+    var safeDesc = validationResult.value;
+
     // Agregamos la tarea
-    var success = addTask(description, priority, dueDate);
+    var success = addTask(safeDesc, priority, dueDate);
 }
 
 /*
